@@ -10,6 +10,7 @@ typedef struct {
     char comando[MAX];
     char argumentos[5][MAX];
 	int qtdArg;
+	char comandoCompleto[100];
 } Tcomandos;
 
 /*
@@ -167,6 +168,7 @@ void printacomandos(int qtdComandos, Tcomandos *comandos) {
 void limpa_comandos(Tcomandos *comandos) {
 	for (int i = 0; i < 5; i++) {
 		strcpy(comandos[i].comando,"");
+		strcpy(comandos[i].comandoCompleto,"");
 		comandos[i].qtdArg = 0;
 	}
 }
@@ -185,6 +187,7 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 	while( 1 ) {
 
 		while (strcmp(token,"@")) {
+			strcat(comandos[i].comandoCompleto,token);
 			if (comando == 1) {
 				strcpy(comandos[i].comando,token);
 				//printf("comando %d: %s\n",i, token);
@@ -197,6 +200,7 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 			}
 			token = strtok(NULL, s);
 			if (token == NULL) break;
+			strcat(comandos[i].comandoCompleto," ");
 		}
 		comandos[i].qtdArg = qtdArg;
 		if (token == NULL) break;
@@ -213,17 +217,19 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 
 void novo_bash(){
 	int i, parametros = 5, exit_status = 0;
+	Tcomandos comandos[5];
+
 	while(1){
 		char *bufferIn = (char *)malloc(sizeof(char)*100);
-		Tcomandos comandos[5];
+		limpa_comandos(comandos);
 		int qtdComandos = 0;
 		printf("fsh> ");
 		scanf("\n%[^\n]s", bufferIn);
-
+		
 		separa_comandos(&qtdComandos, comandos, bufferIn);
-		printf("PID_P1 executará comando %s com %d argumentos\n",comandos[0].comando,comandos[0].qtdArg);
-		printf("PID_P2 executará comando %s com %d argumentos\n",comandos[1].comando ,comandos[1].qtdArg);
-		printf("PID_P3 executará comando %s com %d argumentos\n",comandos[2].comando ,comandos[2].qtdArg);
+		printf("PID_P1 executará comando %s com %d argumentos\n",comandos[0].comandoCompleto,comandos[0].qtdArg);
+		printf("PID_P2 executará comando %s com %d argumentos\n",comandos[1].comandoCompleto ,comandos[1].qtdArg);
+		printf("PID_P3 executará comando %s com %d argumentos\n",comandos[2].comandoCompleto ,comandos[2].qtdArg);
 
 	}
 }
