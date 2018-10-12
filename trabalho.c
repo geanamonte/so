@@ -4,6 +4,14 @@
 #include <unistd.h>  
 #include <errno.h>	
 #include <signal.h>
+
+#define MAX 30
+typedef struct {
+    char comando[MAX];
+    char argumentos[5][MAX];
+	int qtdArg;
+} Tcomandos;
+
 /*
 void newsh_bash()
 {
@@ -15,9 +23,7 @@ void newsh_bash()
 		fflush(stdin);
 		scanf("\n%[^\n]s", bufferIn);
 		char **entrada = split(bufferIn,&parametros);
-
 		command_map(entrada, parametros, &exit_status, bufferIn);        
-
 		free(bufferIn);
 		for(i=0;i<100;i++)free(*(entrada+i));
 		free(entrada); 
@@ -66,7 +72,6 @@ void command_map(char **comandos, int qtParametros, int *exit_status, char *nome
 		{
 			kill(processos_back[i].pid,SIGKILL);
 		}
-
 	    for(i=0;i<c_fore;i++)
 		{
 			kill(processos_fore[i].pid,SIGKILL);
@@ -150,54 +155,111 @@ void command_map(char **comandos, int qtParametros, int *exit_status, char *nome
 	}
 }
 */
-
-
-char** separa_comandos(char *comando){
-	int i = 0, j = 0, k = 0;
-	char **comandos = (char **)malloc(sizeof(char *)*100);
-	
-	for(i=0;i<100;i++){
-		*(comandos+i) = (char *)malloc(sizeof(char)*4096);
-    	memset(*(comandos+i), '\0', sizeof(char)*4096);
+void printacomandos(int qtdComandos, Tcomandos *comandos) {
+	int i;
+	printf("QTD COMANDOS %d",qtdComandos);
+	for (i=0; i<qtdComandos; i++) {
+		printf("\n         %s\n",comandos[i].comando);
 	}
-  	for(i=0;j<5;i++){
-		if(comando[i] != '@'){
-			if(comando[i] != ' '){
-				comandos[j][k] = comando[i];
-				k++;
-			}
-		}
-		else{
-			comandos[j][k] = '\0';
-			j++;
-			k = 0;
-		}
-	}
-	comandos[j][k] = '\0';
-	//*qtdParametros = j;
-	return comandos;
+	printf("ACABOU");
 }
+
+void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
+
+	int i = 0;
+	int qtdArg = 0, comando = 1;
+	//Tcomandos comandos[5];
+
+	const char s[2] = " ";
+	char *token;
+
+	token = strtok(str, s);
+	
+	while( 1 ) {
+
+		while (strcmp(token,"@")) {
+			if (comando == 1) {
+				strcpy(comandos[i].comando,token);
+				//printf("comando %d: %s\n",i, token);
+				comando = 0;
+				(*qtdComandos)++;
+			} else {
+				strcpy(comandos[i].argumentos[qtdArg],token);
+				qtdArg++;
+				//printf("arg %d do comando %d: %s\n",qtdArg,i,comandos[i].argumentos[qtdArg-1]);
+			}
+			token = strtok(NULL, s);
+			if (token == NULL) break;
+		}
+		if (token == NULL) break;
+		if (!strcmp(token,"@")) {
+		comandos[i].qtdArg = qtdArg;
+		qtdArg = 0;
+		i++;
+		comando = 1;
+		
+		token = strtok(NULL, s);
+		}
+	}
+	//printf ("quantidade de comandos %d          ",*qtdComandos);
+	//printacomandos((*qtdComandos),comandos);
+}
+
 void novo_bash(){
 	int i, parametros = 5, exit_status = 0;
 	while(1){
 		char *bufferIn = (char *)malloc(sizeof(char)*100);
+		Tcomandos comandos[5];
+		int qtdComandos = 0;
 		printf("fsh> ");
-//		getchar();
 		scanf("\n%[^\n]s", bufferIn);
 
-		char **entrada = separa_comandos(bufferIn);
-		printf("PID_P1 executará comando %s\n",entrada[0]);
-		printf("PID_P2 executará comando %s\n",entrada[1]);
-		printf("PID_P3 executará comando %s\n",entrada[2]);
-		printf("PID_P4 executará comando %s\n",entrada[3]);
-		printf("PID_P5 executará comando %s\n",entrada[4]);
-
+		separa_comandos(&qtdComandos, comandos, bufferIn);
+		printf("PID_P1 executará comando %s\n",comandos[0].comando);
+		printf("PID_P2 executará comando %s\n",comandos[1].comando);
+		printf("PID_P3 executará comando %s\n",comandos[2].comando);
+		printf("PID_P4 executará comando %s\n",comandos[3].comando);
+		printf("PID_P5 executará comando %s\n",comandos[4].comando);
 
 	}
 }
+
 int main(int argc, char **argv){
 //	signal(SIGTSTP, trata_SIGTSTP);
 //	signal(SIGINT, trata_SIGINT);
 		novo_bash();
+		
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
