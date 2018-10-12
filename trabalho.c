@@ -8,7 +8,7 @@
 #define MAX 30
 typedef struct {
     char comando[MAX];
-    char argumentos[5][MAX];
+    char *argumentos[6];
 	int qtdArg;
 	char comandoCompleto[100];
 } Tcomandos;
@@ -194,7 +194,8 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 				comando = 0;
 				(*qtdComandos)++;
 			} else {
-				strcpy(comandos[i].argumentos[qtdArg],token);
+				//strcpy(comandos[i].argumentos[qtdArg],token);
+				comandos[i].argumentos[qtdArg] = token;
 				qtdArg++;
 				//printf("arg %d do comando %d: %s\n",qtdArg,i,comandos[i].argumentos[qtdArg-1]);
 			}
@@ -203,6 +204,7 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 			strcat(comandos[i].comandoCompleto," ");
 		}
 		comandos[i].qtdArg = qtdArg;
+		comandos[i].argumentos[qtdArg] = NULL;
 		if (token == NULL) break;
 		if (!strcmp(token,"@")) {
 			qtdArg = 0;
@@ -237,7 +239,7 @@ void novo_bash(){
 int main(int argc, char **argv){
 //	signal(SIGTSTP, trata_SIGTSTP);
 //	signal(SIGINT, trata_SIGINT);
-		novo_bash();
+	novo_bash();
 		
 	return 0;
 }
