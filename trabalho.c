@@ -164,6 +164,13 @@ void printacomandos(int qtdComandos, Tcomandos *comandos) {
 	printf("ACABOU");
 }
 
+void limpa_comandos(Tcomandos *comandos) {
+	for (int i = 0; i < 5; i++) {
+		strcpy(comandos[i].comando,"");
+		comandos[i].qtdArg = 0;
+	}
+}
+
 void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 
 	int i = 0;
@@ -191,14 +198,13 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 			token = strtok(NULL, s);
 			if (token == NULL) break;
 		}
+		comandos[i].qtdArg = qtdArg;
 		if (token == NULL) break;
 		if (!strcmp(token,"@")) {
-		comandos[i].qtdArg = qtdArg;
-		qtdArg = 0;
-		i++;
-		comando = 1;
-		
-		token = strtok(NULL, s);
+			qtdArg = 0;
+			i++;
+			comando = 1;
+			token = strtok(NULL, s);
 		}
 	}
 	//printf ("quantidade de comandos %d          ",*qtdComandos);
@@ -215,11 +221,9 @@ void novo_bash(){
 		scanf("\n%[^\n]s", bufferIn);
 
 		separa_comandos(&qtdComandos, comandos, bufferIn);
-		printf("PID_P1 executará comando %s\n",comandos[0].comando);
-		printf("PID_P2 executará comando %s\n",comandos[1].comando);
-		printf("PID_P3 executará comando %s\n",comandos[2].comando);
-		printf("PID_P4 executará comando %s\n",comandos[3].comando);
-		printf("PID_P5 executará comando %s\n",comandos[4].comando);
+		printf("PID_P1 executará comando %s com %d argumentos\n",comandos[0].comando,comandos[0].qtdArg);
+		printf("PID_P2 executará comando %s com %d argumentos\n",comandos[1].comando ,comandos[1].qtdArg);
+		printf("PID_P3 executará comando %s com %d argumentos\n",comandos[2].comando ,comandos[2].qtdArg);
 
 	}
 }
