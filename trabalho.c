@@ -13,33 +13,61 @@ typedef struct {
 	char comandoCompleto[100];
 } Tcomandos;
 
-/*
-void newsh_bash()
+int c_back = 0, c_fore = 0;
+
+typedef struct processos
 {
-	int i, parametros, exit_status = 0;
-	while(1)
-	{
-		char *bufferIn = (char *)malloc(sizeof(char)*100);
-		printf("newsh%% ");
-		fflush(stdin);
-		scanf("\n%[^\n]s", bufferIn);
-		char **entrada = split(bufferIn,&parametros);
-		command_map(entrada, parametros, &exit_status, bufferIn);        
-		free(bufferIn);
-		for(i=0;i<100;i++)free(*(entrada+i));
-		free(entrada); 
-		if(exit_status)break;
+	char nome[200];
+	int pid;
+}processo;
+processo processos_back[200], processos_fore[200];
+
+void command_map(char *comando,char **arg, int qtd, int *exit_status){
+
+	if(!strcmp(comando,"waitz")){
+		int status;
+		while(1){
+			int controle = wait(&status); // Aguarda o processo mudar de estado.
+			if(controle != -1)//Se processo ZOMBIE for liberado, o valor de controle será seu PID
+				printf("processo %d foi liberado %d\n", controle, status);
+			if(controle==-1 && errno!=EINTR) // Caso contrário, houve erro
+				break;
+		}
 	}
+	else if(!strcmp(comando,"exit")){
+	}
+	else{
+//char *argumentos[3] = {"firefox","oi.c",NULL};
+		printf("%d executará comando %s \n",getpid(),comando);
+		int c = fork();
+		if(c<0){
+			printf("Não foi possível criar um filho.");
+			exit(0);
+		} 
+		if(c == 0){
+//				printf("ESTOU NO FILHO %d \n",getpid());
+				int exec_status;
+				setpgid(getpid(), getpid());
+
+				exec_status = execvp(comando, arg);
+
+				if(exec_status==-1)
+				{
+					printf("Erro ao executar exec!\n");
+					exit(0);
+				}
+			}
+			else if(c > 0){
+	//			printf("ESTOU NO PAI \n");
+				printf("[%d] %d\n", c_back+1, c);
+				processos_back[c_back].pid = c;
+				strcpy(processos_back[c_back].nome,"processo");
+				processos_back[c_back].nome[strlen(processos_back[c_back].nome)-1] = '\0';
+				c_back++;
+			} 			
+		}
 }
-*/
-void command_map(char **comandos, int qtParametros, int *exit_status, char *nome){
-	int i;
-	if(!strcmp(comandos[0],"waitz")){
-	}
-	else if(!strcmp(comandos[0],"exit")){
-	}
-	else{}
-}
+
 /*
 void command_map(char **comandos, int qtParametros, int *exit_status, char *nome)
 {
@@ -190,6 +218,7 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 			strcat(comandos[i].comandoCompleto,token);
 			if (comando == 1) {
 				strcpy(comandos[i].comando,token);
+//				strcpy(comandos[i].argumentos[qtdArg],token);
 				//printf("comando %d: %s\n",i, token);
 				comando = 0;
 				(*qtdComandos)++;
@@ -212,6 +241,7 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 			comando = 1;
 			token = strtok(NULL, s);
 		}
+
 	}
 	//printf ("quantidade de comandos %d          ",*qtdComandos);
 	//printacomandos((*qtdComandos),comandos);
@@ -222,6 +252,7 @@ void novo_bash(){
 	Tcomandos comandos[5];
 
 	while(1){
+printf("RENDERIZANDO BASH AGAIN\n");
 		char *bufferIn = (char *)malloc(sizeof(char)*100);
 		limpa_comandos(comandos);
 		int qtdComandos = 0;
@@ -229,10 +260,16 @@ void novo_bash(){
 		scanf("\n%[^\n]s", bufferIn);
 		
 		separa_comandos(&qtdComandos, comandos, bufferIn);
-		printf("PID_P1 executará comando %s com %d argumentos\n",comandos[0].comandoCompleto,comandos[0].qtdArg);
-		printf("PID_P2 executará comando %s com %d argumentos\n",comandos[1].comandoCompleto ,comandos[1].qtdArg);
-		printf("PID_P3 executará comando %s com %d argumentos\n",comandos[2].comandoCompleto ,comandos[2].qtdArg);
+//		printf("PID_P1 executará comando %s com %d argumentos\n",comandos[0].comandoCompleto,comandos[0].qtdArg);
+	//	printf("PID_P2 executará comando %s com %d argumentos\n",comandos[1].comandoCompleto ,comandos[1].qtdArg);
+		//printf("PID_P3 executará comando %s com %d argumentos\n",comandos[2].comandoCompleto ,comandos[2].qtdArg);
 
+		for(int i = 0; i< qtdComandos ;i++){
+			command_map(comandos[i].comando,comandos[i].argumentos,comandos[i].qtdArg,&exit_status);
+		}
+
+		free(bufferIn);
+		if(exit_status)break;
 	}
 }
 
