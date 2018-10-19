@@ -218,8 +218,10 @@ void separa_comandos(int *qtdComandos,  Tcomandos *comandos, char* str) {
 			strcat(comandos[i].comandoCompleto,token);
 			if (comando == 1) {
 				strcpy(comandos[i].comando,token);
+				comandos[i].argumentos[qtdArg] = token;
 //				strcpy(comandos[i].argumentos[qtdArg],token);
 				//printf("comando %d: %s\n",i, token);
+				qtdArg++;
 				comando = 0;
 				(*qtdComandos)++;
 			} else {
@@ -276,6 +278,7 @@ printf("RENDERIZANDO BASH AGAIN\n");
 int main(int argc, char **argv){
 //	signal(SIGTSTP, trata_SIGTSTP);
 //	signal(SIGINT, trata_SIGINT);
+printf("%d",getpid());
 	novo_bash();
 		
 	return 0;
